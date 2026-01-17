@@ -6,9 +6,9 @@ import lombok.Data;
 
 import java.util.Optional;
 
-@Builder@AllArgsConstructor@Data
+@Builder
+@Data
 public class CriteriaRequest {
     Optional<String> modelo;
-    Optional<String> fabicante;
-    Optional<String> pais;
+    Optional<String> fabricante;
 }

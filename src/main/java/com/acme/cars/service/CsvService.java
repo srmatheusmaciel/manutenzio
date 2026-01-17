@@ -16,16 +16,16 @@ public class CsvService {
     public void generate(String filepath){
         List<Carro> all = carroService.listarTodos();
         try(CSVWriter writer=  new CSVWriter(new FileWriter(filepath))){
-            writer.writeNext(new String[]{"ID", "MODELO", "ANO","COR","HP","FABRICANTE","PAIS"});
+            writer.writeNext(new String[]{"ID", "PLACA", "MODELO", "ANO", "COR", "FABRICANTE", "STATUS"});
             for(Carro carro : all){
                 writer.writeNext(new String[]{
                         String.valueOf(carro.getId()),
+                        carro.getPlaca(),
                         carro.getModelo(),
                         String.valueOf(carro.getAno()),
                         carro.getCor(),
-                        String.valueOf(carro.getCavalosDePotencia()),
                         carro.getFabricante(),
-                        carro.getPais()
+                        carro.getStatus().name()
                 });
             }
         } catch (IOException e) {

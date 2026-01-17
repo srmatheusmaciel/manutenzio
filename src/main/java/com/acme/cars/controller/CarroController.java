@@ -1,6 +1,5 @@
 package com.acme.cars.controller;
 
-import com.acme.cars.exception.RecursoNaoEncontradoException;
 import com.acme.cars.model.Carro;
 import com.acme.cars.payload.CriteriaRequest;
 import com.acme.cars.service.CarroService;
@@ -26,10 +25,12 @@ public class CarroController {
     @GetMapping("/search")
     public ResponseEntity<List<Carro>> search(
             @RequestHeader(value = "modelo", required = false) Optional<String> modelo,
-            @RequestHeader(value = "fabricante", required = false) Optional<String> fabricante,
-            @RequestHeader(value = "pais", required = false) Optional<String> pais) {
+            @RequestHeader(value = "fabricante", required = false) Optional<String> fabricante) {
 
-        CriteriaRequest criteriaRequest = new CriteriaRequest(modelo, fabricante,pais);
+        CriteriaRequest criteriaRequest = CriteriaRequest.builder()
+                .modelo(modelo)
+                .fabricante(fabricante)
+                .build();
         List<Carro> search = carroService.search(criteriaRequest);
         return ResponseEntity.ok(search);
     }
@@ -41,14 +42,15 @@ public class CarroController {
         List<Carro> allCarros = carroService.getAllPaginado(Integer.parseInt(page), Integer.parseInt(size));
         return ResponseEntity.ok(allCarros);
     }
+    @GetMapping("/placa/{placa}")
+    public ResponseEntity<Carro> buscarPorPlaca(@PathVariable String placa) {
+        return ResponseEntity.ok(carroService.buscarPorPlaca(placa));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Carro> buscarPorId(@PathVariable Long id) {
-        try {
-            Carro carro = carroService.buscarPorId(id);
-            return ResponseEntity.ok(carro);
-        } catch (RecursoNaoEncontradoException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
+        Carro carro = carroService.buscarPorId(id);
+        return ResponseEntity.ok(carro);
     }
 
     @PostMapping
@@ -59,23 +61,16 @@ public class CarroController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Carro> atualizar(@PathVariable Long id, @RequestBody Carro carroAtualizado) {
-        try {
-            Carro carro = carroService.atualizar(id, carroAtualizado);
-            return ResponseEntity.ok(carro);
-        } catch (RecursoNaoEncontradoException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
+        Carro carro = carroService.atualizar(id, carroAtualizado);
+        return ResponseEntity.ok(carro);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        try {
-            carroService.deletar(id);
-            return ResponseEntity.noContent().build();
-        } catch (RecursoNaoEncontradoException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        carroService.deletar(id);
+        return ResponseEntity.noContent().build();
     }
+
     @GetMapping("/export-cars")
     public ResponseEntity<FileSystemResource> exportCharacters() {
         String filePath = "carros.csv";

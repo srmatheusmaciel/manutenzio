@@ -1,6 +1,7 @@
 package com.acme.cars.service;
 
 import com.acme.cars.exception.RecursoNaoEncontradoException;
+import com.acme.cars.exception.RegraDeNegocioException;
 import com.acme.cars.model.Carro;
 import com.acme.cars.payload.CriteriaRequest;
 import com.acme.cars.repository.CarroRepository;
@@ -13,8 +14,10 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.text.Normalizer;
+import java.util.Optional;
 
-@Service@RequiredArgsConstructor
+@Service
+@RequiredArgsConstructor
 public class CarroService {
     private final CarroRepository carroRepository;
     private final EntityManager entityManager;
@@ -26,7 +29,23 @@ public class CarroService {
         return carroRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Carro não encontrado com id: " + id));
     }
+
+    public Carro buscarPorPlaca(String placa) {
+        return carroRepository.findByPlaca(placa)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Carro não encontrado com a placa: " + placa));
+    }
+
     public Carro salvar(Carro carro) {
+        Optional<Carro> carroExistente = carroRepository.findByPlaca(carro.getPlaca());
+
+        if (carroExistente.isPresent()) {
+            throw new RegraDeNegocioException("Já existe um carro cadastrado com a placa: " + carro.getPlaca());
+        }
+
+        if (carro.getStatus() == null) {
+            carro.setStatus(com.acme.cars.model.StatusCarro.DISPONIVEL);
+        }
+
         return carroRepository.save(carro);
     }
     public void deletar(Long id) {
@@ -55,12 +74,8 @@ public class CarroService {
         if(criteriaRequest.getModelo().isPresent()){
             predicates.add(cb.like(cb.lower(carro.get("modelo")), "%"+criteriaRequest.getModelo().get().toLowerCase()+"%"));
         }
-        if(criteriaRequest.getFabicante().isPresent()){
-            predicates.add(cb.like(cb.lower(carro.get("fabricante")), "%"+criteriaRequest.getFabicante().get().toLowerCase()+"%"));
-        }
-        if(criteriaRequest.getPais().isPresent()){
-
-            predicates.add(cb.like(cb.lower(carro.get("pais")), "%"+criteriaRequest.getPais().get().toLowerCase()+"%"));
+        if(criteriaRequest.getFabricante().isPresent()){
+            predicates.add(cb.like(cb.lower(carro.get("fabricante")), "%"+criteriaRequest.getFabricante().get().toLowerCase()+"%"));
         }
         cq.where(predicates.toArray(Predicate[]::new));
         return entityManager.createQuery(cq).getResultList();
