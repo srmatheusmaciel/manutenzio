@@ -21,4 +21,10 @@ public class OrdemServicoController {
         OrdemServico os = ordemServicoService.abrirOrdemServico(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(os);
     }
+
+    @PostMapping("/{id}/finalizar")
+    public ResponseEntity<Void> finalizarOS(@PathVariable Long id) {
+        ordemServicoService.finalizarOrdemServico(id);
+        return ResponseEntity.ok().build();
+    }
 }

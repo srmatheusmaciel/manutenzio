@@ -42,4 +42,23 @@ public class OrdemServicoService {
 
         return ordemServicoRepository.save(os);
     }
+
+    @Transactional
+    public void finalizarOrdemServico(Long id) {
+        OrdemServico os = ordemServicoRepository.findById(id)
+                .orElseThrow(() -> new com.acme.cars.exception.RecursoNaoEncontradoException("Ordem de Serviço não encontrada com id: " + id));
+
+        if (os.getStatus() != StatusOrdemServico.ABERTA) {
+            throw new RegraDeNegocioException("Esta OS não pode ser finalizada pois está com status: " + os.getStatus());
+        }
+
+        os.setStatus(StatusOrdemServico.FINALIZADA);
+        os.setDataFechamento(LocalDateTime.now());
+
+        Carro carro = os.getCarro();
+        carro.setStatus(StatusCarro.DISPONIVEL);
+
+        carroRepository.save(carro);
+        ordemServicoRepository.save(os);
+    }
 }
