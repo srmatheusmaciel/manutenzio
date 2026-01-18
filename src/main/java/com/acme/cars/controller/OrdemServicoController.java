@@ -27,4 +27,9 @@ public class OrdemServicoController {
         ordemServicoService.finalizarOrdemServico(id);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/aberta/{placa}")
+    public ResponseEntity<OrdemServico> getOsAberta(@PathVariable String placa) {
+        return ResponseEntity.ok(ordemServicoService.buscarAbertaPorPlaca(placa));
+    }
 }

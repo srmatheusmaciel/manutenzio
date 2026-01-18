@@ -61,4 +61,9 @@ public class OrdemServicoService {
         carroRepository.save(carro);
         ordemServicoRepository.save(os);
     }
+
+    public OrdemServico buscarAbertaPorPlaca(String placa) {
+        return ordemServicoRepository.findByCarroPlacaAndStatus(placa, StatusOrdemServico.ABERTA)
+                .orElseThrow(() -> new com.acme.cars.exception.RecursoNaoEncontradoException("Nenhuma OS aberta para o veículo " + placa));
+    }
 }
