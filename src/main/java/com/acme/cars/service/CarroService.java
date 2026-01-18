@@ -81,4 +81,11 @@ public class CarroService {
         return entityManager.createQuery(cq).getResultList();
     }
 
+    public List<Carro> listarComFiltro(String termo) {
+        if (termo != null && !termo.isBlank()) {
+            return carroRepository.findByPlacaContainingIgnoreCase(termo);
+        }
+        return listarTodos();
+    }
+
 }

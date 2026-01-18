@@ -15,11 +15,25 @@ import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
-@RestController  @RequestMapping("/api/carros")
-@RequiredArgsConstructor  @CrossOrigin(origins = "*")
+@RestController
+@RequestMapping("/api/carros")
+@RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class CarroController {
+
     private final CarroService carroService;
     private final CsvService csvService;
+
+    @GetMapping
+    public ResponseEntity<List<Carro>> getAllCarros(@RequestParam(required = false) String placa) {
+        return ResponseEntity.ok(carroService.listarComFiltro(placa));
+    }
+
+    @PostMapping
+    public ResponseEntity<Carro> createCarro(@RequestBody Carro carro) {
+        Carro novoCarro = carroService.salvar(carro);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novoCarro);
+    }
 
 
     @GetMapping("/search")
@@ -34,14 +48,7 @@ public class CarroController {
         List<Carro> search = carroService.search(criteriaRequest);
         return ResponseEntity.ok(search);
     }
-    @GetMapping
-    public ResponseEntity<List<Carro>> listarTodos(@RequestHeader(value = "page", defaultValue = "0") String page,
-                                                   @RequestHeader(value = "size", defaultValue = "10") String size) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("X-Total-Count", String.valueOf(carroService.count()));
-        List<Carro> allCarros = carroService.getAllPaginado(Integer.parseInt(page), Integer.parseInt(size));
-        return ResponseEntity.ok(allCarros);
-    }
+
     @GetMapping("/placa/{placa}")
     public ResponseEntity<Carro> buscarPorPlaca(@PathVariable String placa) {
         return ResponseEntity.ok(carroService.buscarPorPlaca(placa));
@@ -51,12 +58,6 @@ public class CarroController {
     public ResponseEntity<Carro> buscarPorId(@PathVariable Long id) {
         Carro carro = carroService.buscarPorId(id);
         return ResponseEntity.ok(carro);
-    }
-
-    @PostMapping
-    public ResponseEntity<Carro> salvar(@RequestBody Carro carro) {
-        Carro carroSalvo = carroService.salvar(carro);
-        return ResponseEntity.status(HttpStatus.CREATED).body(carroSalvo);
     }
 
     @PutMapping("/{id}")
