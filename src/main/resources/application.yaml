@@ -2,14 +2,14 @@ spring:
   application:
     name: cars
   datasource:
-    url: jdbc:h2:mem:db  # URL para o banco de dados H2 em mem?ria
+    url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1
     driverClassName: org.h2.Driver
-    username: sa
-    password: ''
+
+    username: ${DB_USER:sa}
+    password: ${DB_PASSWORD:}
   h2:
     console:
       enabled: true
-
   jpa:
     defer-datasource-initialization: true
     hibernate:
@@ -17,12 +17,17 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        format_sql: true  # Formata as queries SQL para facilitar a leitura
-  server:
-    port: 8080
+        format_sql: true
+
 server:
+  port: 8080
   servlet:
     encoding:
       charset: UTF-8
       enabled: true
       force: true
+
+api:
+  security:
+    token:
+      secret: ${JWT_SECRET:minha-chave-secreta-dev}
