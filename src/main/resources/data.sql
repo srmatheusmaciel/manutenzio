@@ -5,6 +5,6 @@ INSERT INTO usuario (nome, email, role, avatar, password) VALUES
 
 INSERT INTO carro (fabricante, modelo, ano, cor, placa, status) VALUES
 ('Volkswagen', 'Golf', 2020, 'Preto', 'GOLF-2020', 'DISPONIVEL'),
-('Ford', 'Fiesta', 2019, 'Prata', 'FIESTA-19', 'EM_MANUTENCAO'),
+('Ford', 'Fiesta', 2019, 'Prata', 'FIESTA-19', 'DISPONIVEL'),
 ('Fiat', 'Uno', 2010, 'Branco', 'UNO-2010', 'INATIVO'),
 ('Ford', 'Ka', 2020, 'Branco', 'KA-2020', 'DISPONIVEL');
