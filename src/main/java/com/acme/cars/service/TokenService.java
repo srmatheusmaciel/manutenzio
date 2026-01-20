@@ -23,6 +23,7 @@ public class TokenService {
             return JWT.create()
                     .withIssuer("ACME.COM")
                     .withSubject(usuario.getEmail())
+                    .withClaim("role", usuario.getRole().name())
                     .withExpiresAt(genExpirationDate())
                     .sign(algorithm);
         } catch (Exception exception) {
