@@ -13,10 +13,9 @@ import java.util.Optional;
 public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     public Optional<Usuario> findByEmail(String email) {
-        Usuario byEmail = usuarioRepository.findByEmail(email);
-        if (byEmail == null) {return Optional.empty(); }
-        else { return Optional.of(byEmail); }
+        return usuarioRepository.findByEmail(email);
     }
+
     public List<Usuario> findAll() {
         return usuarioRepository.findAll();
     }

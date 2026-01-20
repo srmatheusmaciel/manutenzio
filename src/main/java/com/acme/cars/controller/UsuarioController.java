@@ -1,17 +1,19 @@
 package com.acme.cars.controller;
 
-import com.acme.cars.dto.AuthUserDTO;
 import com.acme.cars.model.Usuario;
-import com.acme.cars.payload.AuthPayload;
+import com.acme.cars.payload.LoginRequest;
+import com.acme.cars.payload.LoginResponse;
+import com.acme.cars.payload.RegisterRequest;
+import com.acme.cars.repository.UsuarioRepository;
 import com.acme.cars.service.TokenService;
-import com.acme.cars.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -19,24 +21,41 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class UsuarioController {
 
-    private final UsuarioService usuarioService;
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
 
-    @GetMapping
-    public ResponseEntity<List<Usuario>> getAllUsuario() {
-        return ResponseEntity.ok(usuarioService.findAll());
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> criarUsuario(@RequestBody RegisterRequest request) {
+        if (usuarioRepository.findByEmail(request.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body("Email já cadastrado.");
+        }
+
+        Usuario novoUsuario = new Usuario();
+        novoUsuario.setNome(request.getNome());
+        novoUsuario.setEmail(request.getEmail());
+        novoUsuario.setPassword(passwordEncoder.encode(request.getPassword()));
+        novoUsuario.setRole(request.getRole());
+        novoUsuario.setAvatar("https://github.com/shadcn.png");
+
+        usuarioRepository.save(novoUsuario);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body("Usuário criado com sucesso!");
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthPayload> login(@RequestBody AuthUserDTO data) {
-        var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.password());
+    public ResponseEntity login(@RequestBody LoginRequest loginRequest) {
+        var usernamePassword = new UsernamePasswordAuthenticationToken(
+                loginRequest.email(),
+                loginRequest.password()
+        );
 
-        var auth = this.authenticationManager.authenticate(usernamePassword);
+        var auth = authenticationManager.authenticate(usernamePassword);
 
         var token = tokenService.generateToken((Usuario) auth.getPrincipal());
 
-        return ResponseEntity.ok(new AuthPayload(token));
+        return ResponseEntity.ok(new LoginResponse(token));
     }
-
 }
