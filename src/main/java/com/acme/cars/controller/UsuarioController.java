@@ -6,6 +6,7 @@ import com.acme.cars.payload.LoginResponse;
 import com.acme.cars.payload.RegisterRequest;
 import com.acme.cars.repository.UsuarioRepository;
 import com.acme.cars.service.TokenService;
+import com.acme.cars.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 public class UsuarioController {
 
     private final UsuarioRepository usuarioRepository;
+    private final UsuarioService service;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
@@ -30,19 +32,7 @@ public class UsuarioController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> criarUsuario(@Valid @RequestBody RegisterRequest request) {
-        if (usuarioRepository.findByEmail(request.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest().body("Email já cadastrado.");
-        }
-
-        Usuario novoUsuario = new Usuario();
-        novoUsuario.setNome(request.getNome());
-        novoUsuario.setEmail(request.getEmail());
-        novoUsuario.setPassword(passwordEncoder.encode(request.getPassword()));
-        novoUsuario.setRole(request.getRole());
-        novoUsuario.setAvatar("https://github.com/shadcn.png");
-
-        usuarioRepository.save(novoUsuario);
-
+        service.registrar(request);
         return ResponseEntity.status(HttpStatus.CREATED).body("Usuário criado com sucesso!");
     }
 
