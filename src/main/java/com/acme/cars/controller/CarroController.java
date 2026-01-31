@@ -1,9 +1,11 @@
 package com.acme.cars.controller;
 
 import com.acme.cars.model.Carro;
+import com.acme.cars.payload.CarroRequest;
 import com.acme.cars.payload.CriteriaRequest;
 import com.acme.cars.service.CarroService;
 import com.acme.cars.service.CsvService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
@@ -31,8 +33,8 @@ public class CarroController {
     }
 
     @PostMapping
-    public ResponseEntity<Carro> createCarro(@RequestBody Carro carro) {
-        Carro novoCarro = carroService.salvar(carro);
+    public ResponseEntity<Carro> createCarro(@Valid @RequestBody CarroRequest carro) {
+        Carro novoCarro = carroService.salvar(carro.toModel());
         return ResponseEntity.status(HttpStatus.CREATED).body(novoCarro);
     }
 

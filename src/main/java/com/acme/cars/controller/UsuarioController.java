@@ -6,6 +6,7 @@ import com.acme.cars.payload.LoginResponse;
 import com.acme.cars.payload.RegisterRequest;
 import com.acme.cars.repository.UsuarioRepository;
 import com.acme.cars.service.TokenService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,7 @@ public class UsuarioController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> criarUsuario(@RequestBody RegisterRequest request) {
+    public ResponseEntity<?> criarUsuario(@Valid @RequestBody RegisterRequest request) {
         if (usuarioRepository.findByEmail(request.getEmail()).isPresent()) {
             return ResponseEntity.badRequest().body("Email já cadastrado.");
         }
