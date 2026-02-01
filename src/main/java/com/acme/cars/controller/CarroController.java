@@ -5,6 +5,7 @@ import com.acme.cars.payload.CarroRequest;
 import com.acme.cars.payload.CriteriaRequest;
 import com.acme.cars.service.CarroService;
 import com.acme.cars.service.CsvService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
@@ -15,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,13 +79,10 @@ public class CarroController {
     }
 
     @GetMapping("/export-cars")
-    public ResponseEntity<FileSystemResource> exportCharacters() {
-        String filePath = "carros.csv";
-        csvService.generate(filePath);
-        File file = new File(filePath);
-        FileSystemResource fileSystemResource = new FileSystemResource(file);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=" + file.getName())
-                .body(fileSystemResource);
+    public void exportCharacters(HttpServletResponse response) throws IOException {
+        response.setContentType("text/csv");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=carros.csv");
+
+        csvService.generate(response.getWriter());
     }
 }

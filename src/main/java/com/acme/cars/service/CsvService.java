@@ -7,18 +7,20 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class CsvService {
     private final CarroService carroService;
-    public void generate(String filepath){
+
+    public void generate(Writer writer) {
         List<Carro> all = carroService.listarTodos();
-        try(CSVWriter writer=  new CSVWriter(new FileWriter(filepath))){
-            writer.writeNext(new String[]{"ID", "PLACA", "MODELO", "ANO", "COR", "FABRICANTE", "STATUS"});
-            for(Carro carro : all){
-                writer.writeNext(new String[]{
+        try (CSVWriter csvWriter = new CSVWriter(writer)) {
+            csvWriter.writeNext(new String[]{"ID", "PLACA", "MODELO", "ANO", "COR", "FABRICANTE", "STATUS"});
+            for (Carro carro : all) {
+                csvWriter.writeNext(new String[]{
                         String.valueOf(carro.getId()),
                         carro.getPlaca(),
                         carro.getModelo(),
@@ -29,7 +31,7 @@ public class CsvService {
                 });
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Erro ao gerar CSV", e);
         }
     }
 }
